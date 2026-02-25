@@ -1,0 +1,35 @@
+# Core
+langchain
+langchain-community
+langchain-text-splitters
+langchain_experimental
+langgraph
+numpy
+opencv-python
+pillow
+pydantic
+pyyaml
+pymupdf
+fastembed
+unstructured
+
+# AI & ML
+boto3  # AWS Bedrock, SNS
+roboflow
+qdrant-client
+sentence-transformers
+
+# Utilities
+python-docx
+python-dotenv
+requests
+
+# Interface
+streamlit
+
+# Testing
+pytest
+
+
+fastapi
+inference-sdk
