@@ -39,7 +39,7 @@ class RiskAssessment(BaseModel):
     risk_score: int = Field(..., ge=0, le=100)
     alert_level: AlertLevel
     violations: List[Violation] = []
-    equipment_contex: List[str] = []
+    equipment_context: List[str] = []
 
 class Regulation(BaseModel):
     """OSHA regulation reference."""

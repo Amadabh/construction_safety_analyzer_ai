@@ -1,22 +1,11 @@
-# from schemas import RiskAssessment
-
-# class AlertRouter:
-#     def send_alerts(self, risk: RiskAssessment):
-#         # TODO: Implement SNS/Slack Logic
-#         print(f"Routing alerts for risk level: {risk.alert_level}")
-
-
 import requests
 import boto3
 from schemas import RiskAssessment
-from utils.sns_utils import initialize_sns, publish_alert
+from utils import initialize_sns, publish_alert
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import Config
-
-# Initialize once at module load
-TOPIC_ARN = initialize_sns()
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
 def _build_message(risk: RiskAssessment) -> tuple[str, str]:
@@ -34,17 +23,25 @@ Risk Score  : {risk.risk_score}/100
 Violations Detected:
 {violations_text if violations_text else 'None'}
 
-Equipment Context: {', '.join(risk.equipment_contex) if risk.equipment_contex else 'N/A'}
+Equipment Context: {', '.join(risk.equipment_context) if risk.equipment_context else 'N/A'}
     """.strip()
     return subject, message
 
 # ── Public API ───────────────────────────────────────────────────────────────
-def run_alert_agent(risk_assessment: RiskAssessment) -> list[str]:
+def run_alert_agent(risk_assessment: RiskAssessment, report_path: str | None = None) -> list[str]:
     """Entry point called by graph.py to trigger alerts."""
     alerts_sent = []
+
+    try:
+        topic_arn = initialize_sns()
+    except Exception as e:
+        print(f"⚠ SNS initialization failed (check AWS credentials): {e}")
+        print("Skipping alert delivery.")
+        return alerts_sent
+
     subject, message = _build_message(risk_assessment)
 
-    if publish_alert(TOPIC_ARN, subject, message):
+    if publish_alert(topic_arn, subject, message):
         alerts_sent.append("email")
 
     print(f"Alerts sent via: {alerts_sent}")

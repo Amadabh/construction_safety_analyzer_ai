@@ -4,7 +4,15 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import Config
 
-sns = boto3.client('sns')
+def _make_sns_client():
+    """Build SNS client — uses system credentials by default, .env creds only as fallback."""
+    kwargs = {}
+    if Config.AWS_ACCESS_KEY_ID and Config.AWS_SECRET_ACCESS_KEY:
+        kwargs["aws_access_key_id"]     = Config.AWS_ACCESS_KEY_ID
+        kwargs["aws_secret_access_key"] = Config.AWS_SECRET_ACCESS_KEY
+    return boto3.client("sns", **kwargs)
+
+sns = _make_sns_client()
 
 def initialize_sns(topic_name: str = 'risk_alerts') -> str:
     """Creates topic if not exists and ensures email is subscribed. Returns topic_arn."""

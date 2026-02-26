@@ -12,7 +12,37 @@ st.sidebar.header("Configuration")
 st.sidebar.text(f"Project: {Config.PROJECT_NAME}")
 st.sidebar.text(f"Model: {Config.BEDROCK_MODEL_ID}")
 
-# Main content
+# ── Auto-ingest OSHA data if not already in Qdrant ──────────────────────────
+@st.cache_resource(show_spinner=False)
+def ensure_osha_ingested():
+    """Check if OSHA regulations are already in Qdrant; ingest only if missing."""
+    try:
+        from qdrant_client import QdrantClient
+        client = QdrantClient(host=Config.QDRANT_HOST, port=Config.QDRANT_PORT)
+
+        if client.collection_exists(Config.QDRANT_COLLECTION):
+            count = client.count(Config.QDRANT_COLLECTION).count
+            if count > 0:
+                return f"✅ OSHA knowledge base ready ({count} chunks)"
+
+        # Collection missing or empty — run ingestion
+        pdf_path = os.path.join(Config.DATA_DIR, "docs", "CAL_OSHA.pdf")
+        if not os.path.exists(pdf_path):
+            return "⚠️ CAL_OSHA.pdf not found in data/docs/ — skipping ingestion"
+
+        from ingestion import ingest
+        ingest(pdf_path)
+        count = client.count(Config.QDRANT_COLLECTION).count
+        return f"✅ OSHA knowledge base ingested ({count} chunks)"
+
+    except Exception as e:
+        return f"⚠️ Qdrant not reachable — RAG disabled ({e})"
+
+with st.spinner("Checking OSHA knowledge base..."):
+    qdrant_status = ensure_osha_ingested()
+st.sidebar.caption(qdrant_status)
+
+# ── Main content ─────────────────────────────────────────────────────────────
 uploaded_file = st.file_uploader("Upload Construction Site Video", type=["mp4", "mov", "avi"])
 
 if uploaded_file is not None:
@@ -57,3 +87,4 @@ if uploaded_file is not None:
                         st.markdown(reg.text)
                         
             st.success("Analysis Complete!")
+

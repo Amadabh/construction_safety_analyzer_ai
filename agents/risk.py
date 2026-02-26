@@ -81,7 +81,7 @@ class RiskAssessor:
             risk_score=data["risk_score"],
             alert_level=AlertLevel(data["alert_level"]),
             violations=violations,
-            equipment_contex=[],
+            equipment_context=[],
         )
 
     def _rule_based_fallback(self, violations_found: list) -> RiskAssessment:
@@ -96,5 +96,5 @@ class RiskAssessor:
             risk_score=score,
             alert_level=level,
             violations=[],
-            equipment_contex=[],
+            equipment_context=[],
         )

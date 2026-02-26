@@ -61,7 +61,7 @@ PRIORITY_MAP = {
 }
 
 RETRIEVAL_LIMITS = {"HIGH": 5, "MEDIUM": 3, "LOW": 1}
-CONFIDENCE_THRESHOLD = 0.50
+CONFIDENCE_THRESHOLD = 0.30   # lowered from 0.50 — Roboflow often returns 0.30-0.45 on real video
 SCORE_THRESHOLD      = 0.60
 
 
@@ -137,10 +137,7 @@ class RAGRetriever:
             if detection.confidence < CONFIDENCE_THRESHOLD:
                 continue
 
-            # Skip LOW-priority non-violations to save compute
             priority = get_priority(detection.label)
-            if priority == "LOW" and detection.label not in VIOLATION_LABELS:
-                continue
 
             query_text = build_query(detection.label)
             limit      = RETRIEVAL_LIMITS.get(priority, 1)

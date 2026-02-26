@@ -19,7 +19,10 @@ class Config:
 
     # AWS
     AWS_REGION = os.getenv("AWS_DEFAULT_REGION", "us-east-1")
-    BEDROCK_MODEL_ID = os.getenv("BEDROCK_MODEL_ID", "anthropic.claude-3-sonnet-20240229-v1:0")
+    BEDROCK_MODEL_ID = os.getenv("BEDROCK_MODEL_ID", "us.anthropic.claude-3-5-haiku-20241022-v1:0")
+    # Credentials — None means "not in .env, let boto3 use its own chain"
+    AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID") or None
+    AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY") or None
 
     # Roboflow
     ROBOFLOW_API_KEY = os.getenv("ROBOFLOW_API_KEY")
@@ -35,6 +38,10 @@ class Config:
     # Slack
     SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
     ALERT_EMAIL_DEST = os.getenv("ALERT_EMAIL_DEST")
+
+    # S3 — for sharing report PDFs in alert emails
+    S3_REPORTS_BUCKET = os.getenv("S3_REPORTS_BUCKET")  # e.g. 'my-safety-reports'
+    S3_PRESIGNED_EXPIRY = int(os.getenv("S3_PRESIGNED_EXPIRY", 86400))  # 24 h
 
     @classmethod
     def ensure_dirs(cls):
