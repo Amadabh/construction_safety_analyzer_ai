@@ -39,7 +39,7 @@ Video File
     │                    alert level (LOW / MEDIUM / HIGH / CRITICAL)
     ▼
 [5] ReportGenerator    — Claude writes 7-section formal incident report;
-    │                    saved as .docx + auto-converted to PDF via LibreOffice
+    │                    saved as .docx + .pdf (via ReportLab — no LibreOffice needed)
     ▼
 [6] AlertAgent         — Publishes alert via AWS SNS (email) if violations found
 ```
@@ -78,7 +78,7 @@ Combines raw detection statistics (counts + avg confidence per label), risk asse
 6. Recommended Corrective Actions
 7. Compliance & Legal Implications
 
-The report is built as a styled **`.docx`** (color-coded risk banner, detection summary table, violation rows highlighted in red) and auto-converted to **PDF** via LibreOffice.
+The report is built as a styled **`.docx`** (color-coded risk banner, detection summary table, violation rows highlighted) and simultaneously as a **`.pdf`** using **ReportLab** — no LibreOffice or system dependencies required.
 
 ### 6. `AlertAgent` (`agents/alert.py`)
 Publishes a plain-text alert to an **AWS SNS** topic (email subscription) containing the alert level, risk score, and violation summary. Gracefully skips if AWS credentials aren't configured.
@@ -96,7 +96,7 @@ Publishes a plain-text alert to an **AWS SNS** topic (email subscription) contai
 | Dense Embeddings | `BAAI/bge-small-en-v1.5` via FastEmbed |
 | Sparse Embeddings | `prithivida/Splade_PP_en_v1` via FastEmbed |
 | Video Processing | `ffmpeg` / `ffprobe` |
-| Report Generation | `python-docx` + LibreOffice (PDF) |
+| Report Generation | `python-docx` (DOCX) + ReportLab (PDF) |
 | Alerts | AWS SNS |
 | UI | Streamlit |
 | Data Schemas | Pydantic v2 |
@@ -113,7 +113,7 @@ construction_safety/
 ├── model.py            # AWS Bedrock wrapper (text + vision JSON)
 ├── schemas.py          # Pydantic models (Frame, Detection, RiskAssessment, …)
 ├── config.py           # All settings from .env
-├── utils.py            # AWS SNS helpers
+├── utils.py            # AWS SNS helpers + email subscription (subscribe_email)
 ├── docker-compose.yml  # Qdrant container
 ├── requirements.txt
 ├── .env.example
@@ -135,7 +135,6 @@ construction_safety/
 - Python 3.11+
 - Docker (for Qdrant)
 - `ffmpeg` installed on the system
-- LibreOffice (optional — for PDF output)
 - AWS account with Bedrock access (Claude 3.5 Haiku enabled in your region)
 - Roboflow API key
 
@@ -221,4 +220,5 @@ For each video analyzed, the system produces:
 - **Risk assessment** — score (0–100), alert level, per-violation severity
 - **Incident report** — color-coded `.docx` + `.pdf` saved to `data/reports/`
 - **SNS alert email** — sent if violations are detected and AWS SNS is configured
-- **Streamlit UI** — live metrics, violation list, and OSHA regulation viewer
+- **Streamlit UI** — live pipeline progress, metrics, violation list, OSHA regulation viewer, and report download
+- **Alert subscriptions** — any email address can subscribe to alerts directly from the sidebar without editing `.env`
