@@ -21,26 +21,26 @@ An end-to-end AI pipeline that ingests construction site video footage, detects 
 ## How It Works
 
 ```
-Video File
-    │
-    ▼
+  Video File
+      │
+      ▼
 [1] VideoProcessor     — Extract frames at 1fps via ffmpeg (up to 10 frames)
-    │
-    ▼
+      │
+      ▼
 [2] VisionDetector     — Two-stage object detection per frame:
-    │                      Stage 1: Roboflow YOLO (fast, ground-level)
-    │                      Stage 2: Claude Vision fallback (aerial / any angle)
-    ▼
+      │                      Stage 1: Roboflow YOLO (fast, ground-level)
+      │                      Stage 2: Claude Vision fallback (aerial / any angle)
+      ▼
 [3] RAGRetriever       — Hybrid semantic search (dense + sparse / RRF fusion)
-    │                    against Qdrant vector DB of CAL-OSHA regulations
-    ▼
+      │                    against Qdrant vector DB of CAL-OSHA regulations
+      ▼
 [4] RiskAssessor       — Claude (via AWS Bedrock) evaluates violations +
-    │                    equipment context + regulations → risk score 0-100,
-    │                    alert level (LOW / MEDIUM / HIGH / CRITICAL)
-    ▼
+      │                    equipment context + regulations → risk score 0-100,
+      │                    alert level (LOW / MEDIUM / HIGH / CRITICAL)
+      ▼
 [5] ReportGenerator    — Claude writes 7-section formal incident report;
-    │                    saved as .docx + .pdf (via ReportLab — no LibreOffice needed)
-    ▼
+      │                    saved as .docx + .pdf (via ReportLab — no LibreOffice needed)
+      ▼
 [6] AlertAgent         — Publishes alert via AWS SNS (email) if violations found
 ```
 
@@ -89,9 +89,9 @@ Publishes a plain-text alert to an **AWS SNS** topic (email subscription) contai
 
 | Layer | Technology |
 |---|---|
-| Orchestration | [LangGraph](https://github.com/langchain-ai/langgraph) `StateGraph` |
+| Orchestration | [LangGraph](https://github.com/langchain-ai/langgraph) |
 | LLM (reasoning + vision) | AWS Bedrock — Claude 3.5 Haiku (`us.anthropic.claude-3-5-haiku-20241022-v1:0`) |
-| Object Detection | Roboflow Inference SDK (`construction-site-safety/27` YOLO) |
+| Object Detection | Roboflow Inference SDK (`construction-site-safety/27` YOLO V8) |
 | Vector DB | [Qdrant](https://qdrant.tech/) (hybrid dense + sparse) |
 | Dense Embeddings | `BAAI/bge-small-en-v1.5` via FastEmbed |
 | Sparse Embeddings | `prithivida/Splade_PP_en_v1` via FastEmbed |
