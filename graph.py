@@ -93,8 +93,8 @@ class SafetyGraph:
         )
         return {"alerts_sent": alerts_sent}
 
-    def run(self, video_path: str):
-        initial_state = GraphState(
+    def _initial_state(self, video_path: str) -> GraphState:
+        return GraphState(
             video_path=video_path,
             frames=[],
             detections=[],
@@ -107,4 +107,12 @@ class SafetyGraph:
             final_report="",
             alerts_sent=[]
         )
-        return self.workflow.invoke(initial_state)
+
+    def stream(self, video_path: str):
+        """Yield (node_name, partial_state) for each completed node."""
+        for step in self.workflow.stream(self._initial_state(video_path)):
+            node_name, partial_state = next(iter(step.items()))
+            yield node_name, partial_state
+
+    def run(self, video_path: str):
+        return self.workflow.invoke(self._initial_state(video_path))

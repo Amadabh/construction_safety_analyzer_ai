@@ -12,6 +12,7 @@ pyyaml
 pymupdf
 fastembed
 unstructured
+reportlab
 
 # AI & ML
 boto3  # AWS Bedrock, SNS
